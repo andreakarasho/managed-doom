@@ -88,9 +88,7 @@ namespace ManagedDoom
                     DeHackEd.ReadFiles(args.deh.Value);
                 }
 
-                resource = new CommonResource(GetWadPaths(args));
-
-                DeHackEd.ReadDeHackEdLump(resource.Wad);
+                resource = new CommonResource(GetWadPaths(args), !args.nodeh.Present);
 
                 renderer = new SfmlRenderer(config, window, resource);
 
@@ -191,6 +189,13 @@ namespace ManagedDoom
                 nextState = ApplicationState.Game;
                 options.Episode = args.warp.Value.Item1;
                 options.Map = args.warp.Value.Item2;
+                game.DeferedInitNew();
+            }
+            else if (args.episode.Present)
+            {
+                nextState = ApplicationState.Game;
+                options.Episode = args.episode.Value;
+                options.Map = 1;
                 game.DeferedInitNew();
             }
 
