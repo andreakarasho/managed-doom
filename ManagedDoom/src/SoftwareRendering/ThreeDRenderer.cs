@@ -2223,7 +2223,7 @@ namespace ManagedDoom.SoftwareRendering
 
 
 
-        private void DrawColumn(
+        private unsafe void DrawColumn(
             Column column,
             byte[] map,
             int x,
@@ -2244,20 +2244,22 @@ namespace ManagedDoom.SoftwareRendering
             var pos2 = pos1 + (y2 - y1);
 
             // Determine scaling, which is the only mapping to be done.
-            var fracStep = invScale;
-            var frac = textureAlt + (y1 - centerY) * fracStep;
+            int fracStep = invScale.Data;
+            int frac = textureAlt.Data + (y1 - centerY) * fracStep;
 
             // Inner loop that does the actual texture mapping,
             // e.g. a DDA-lile scaling.
             // This is as fast as it gets.
-            var source = column.Data;
             var offset = column.Offset;
-            for (var pos = pos1; pos <= pos2; pos++)
+            fixed (byte* p_source = column.Data, p_map = map, p_screenData = screenData)
             {
-                // Re-map color indices from wall texture column
-                // using a lighting/special effects LUT.
-                screenData[pos] = map[source[offset + ((frac.Data >> Fixed.FracBits) & 127)]];
-                frac += fracStep;
+                for (var pos = pos1; pos <= pos2; pos++)
+                {
+                    // Re-map color indices from wall texture column
+                    // using a lighting/special effects LUT.
+                    p_screenData[pos] = p_map[p_source[offset + ((frac >> Fixed.FracBits) & 127)]];
+                    frac += fracStep;
+                }
             }
         }
 
