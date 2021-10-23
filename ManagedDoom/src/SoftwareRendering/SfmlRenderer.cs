@@ -289,13 +289,18 @@ namespace ManagedDoom.SoftwareRendering
             Array.Copy(screen.Data, wipeBuffer, screen.Data.Length);
         }
 
-        private void Display(uint[] colors)
+        private unsafe void Display(uint[] colors)
         {
-            var screenData = screen.Data;
-            var p = MemoryMarshal.Cast<byte, uint>(sfmlTextureData);
-            for (var i = 0; i < p.Length; i++)
+            fixed (byte* p_screenData = screen.Data)
+            fixed (byte* p_sfmlTextureData = sfmlTextureData)
+            fixed (uint* p_colors = colors)
             {
-                p[i] = colors[screenData[i]];
+                var p_dst = (uint*)p_sfmlTextureData;
+                var length = screen.Data.Length;
+                for (var i = 0; i < length; i++)
+                {
+                    p_dst[i] = p_colors[p_screenData[i]];
+                }
             }
             sfmlTexture.Update(sfmlTextureData, (uint)screen.Height, (uint)screen.Width, 0, 0);
             sfmlWindow.Draw(sfmlSprite, sfmlStates);
