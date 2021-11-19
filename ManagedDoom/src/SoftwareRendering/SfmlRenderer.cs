@@ -89,8 +89,6 @@ namespace ManagedDoom.SoftwareRendering
                 sfmlWindowWidth = doomApp.GraphicsDevice.PresentationParameters.BackBufferWidth;
                 sfmlWindowHeight = doomApp.GraphicsDevice.PresentationParameters.BackBufferHeight;
 
-                Console.WriteLine(sfmlWindowWidth + " x " + sfmlWindowHeight);
-
                 if (config.video_highresolution)
                 {
                     screen = new DrawScreen(resource.Wad, 640, 400);

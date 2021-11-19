@@ -76,25 +76,26 @@ namespace ManagedDoom.UserInput
 
         public void BuildTicCmd(TicCmd cmd)
         {
-            /*
-            var keyForward = IsPressed(config.key_forward);
-            var keyBackward = IsPressed(config.key_backward);
-            var keyStrafeLeft = IsPressed(config.key_strafeleft);
-            var keyStrafeRight = IsPressed(config.key_straferight);
-            var keyTurnLeft = IsPressed(config.key_turnleft);
-            var keyTurnRight = IsPressed(config.key_turnright);
-            var keyFire = IsPressed(config.key_fire);
-            var keyUse = IsPressed(config.key_use);
-            var keyRun = IsPressed(config.key_run);
-            var keyStrafe = IsPressed(config.key_strafe);
+            var keyboardState = Keyboard.GetState();
 
-            weaponKeys[0] = Keyboard.IsKeyPressed(Keyboard.Key.Num1);
-            weaponKeys[1] = Keyboard.IsKeyPressed(Keyboard.Key.Num2);
-            weaponKeys[2] = Keyboard.IsKeyPressed(Keyboard.Key.Num3);
-            weaponKeys[3] = Keyboard.IsKeyPressed(Keyboard.Key.Num4);
-            weaponKeys[4] = Keyboard.IsKeyPressed(Keyboard.Key.Num5);
-            weaponKeys[5] = Keyboard.IsKeyPressed(Keyboard.Key.Num6);
-            weaponKeys[6] = Keyboard.IsKeyPressed(Keyboard.Key.Num7);
+            var keyForward = IsPressed(keyboardState, config.key_forward);
+            var keyBackward = IsPressed(keyboardState, config.key_backward);
+            var keyStrafeLeft = IsPressed(keyboardState, config.key_strafeleft);
+            var keyStrafeRight = IsPressed(keyboardState, config.key_straferight);
+            var keyTurnLeft = IsPressed(keyboardState, config.key_turnleft);
+            var keyTurnRight = IsPressed(keyboardState, config.key_turnright);
+            var keyFire = IsPressed(keyboardState, config.key_fire);
+            var keyUse = IsPressed(keyboardState, config.key_use);
+            var keyRun = IsPressed(keyboardState, config.key_run);
+            var keyStrafe = IsPressed(keyboardState, config.key_strafe);
+
+            weaponKeys[0] = keyboardState.IsKeyDown(Keys.D1);
+            weaponKeys[1] = keyboardState.IsKeyDown(Keys.D2);
+            weaponKeys[2] = keyboardState.IsKeyDown(Keys.D3);
+            weaponKeys[3] = keyboardState.IsKeyDown(Keys.D4);
+            weaponKeys[4] = keyboardState.IsKeyDown(Keys.D5);
+            weaponKeys[5] = keyboardState.IsKeyDown(Keys.D6);
+            weaponKeys[6] = keyboardState.IsKeyDown(Keys.D7);
 
             cmd.Clear();
 
@@ -222,20 +223,19 @@ namespace ManagedDoom.UserInput
 
             cmd.ForwardMove += (sbyte)forward;
             cmd.SideMove += (sbyte)side;
-            */
         }
 
-        private bool IsPressed(KeyBinding keyBinding)
+        private bool IsPressed(KeyboardState keyboardState, KeyBinding keyBinding)
         {
-            /*
             foreach (var key in keyBinding.Keys)
             {
-                if (Keyboard.IsKeyPressed((Keyboard.Key)key))
+                if (keyboardState.IsKeyDown(DoomToXna(key)))
                 {
                     return true;
                 }
             }
 
+            /*
             if (mouseGrabbed)
             {
                 foreach (var mouseButton in keyBinding.MouseButtons)
@@ -333,7 +333,7 @@ namespace ManagedDoom.UserInput
             ReleaseMouse();
         }
 
-        public static DoomKey FromXnaKey(Keys xnaKey)
+        public static DoomKey XnaToDoom(Keys xnaKey)
         {
             switch (xnaKey)
             {
@@ -353,6 +353,16 @@ namespace ManagedDoom.UserInput
                 case Keys.Down: return DoomKey.Down;
                 case Keys.Insert: return DoomKey.Insert;
                 case Keys.Delete: return DoomKey.Delete;
+                case Keys.D0: return DoomKey.Num0;
+                case Keys.D1: return DoomKey.Num1;
+                case Keys.D2: return DoomKey.Num2;
+                case Keys.D3: return DoomKey.Num3;
+                case Keys.D4: return DoomKey.Num4;
+                case Keys.D5: return DoomKey.Num5;
+                case Keys.D6: return DoomKey.Num6;
+                case Keys.D7: return DoomKey.Num7;
+                case Keys.D8: return DoomKey.Num8;
+                case Keys.D9: return DoomKey.Num9;
                 case Keys.A: return DoomKey.A;
                 case Keys.B: return DoomKey.B;
                 case Keys.C: return DoomKey.C;
@@ -408,7 +418,108 @@ namespace ManagedDoom.UserInput
                 case Keys.F13: return DoomKey.F13;
                 case Keys.F14: return DoomKey.F14;
                 case Keys.F15: return DoomKey.F15;
+                case Keys.LeftShift: return DoomKey.LShift;
+                case Keys.RightShift: return DoomKey.RShift;
+                case Keys.LeftControl: return DoomKey.LControl;
+                case Keys.RightControl: return DoomKey.RControl;
+                case Keys.LeftAlt: return DoomKey.LAlt;
+                case Keys.RightAlt: return DoomKey.RAlt;
                 default: return DoomKey.Unknown;
+            }
+        }
+
+        public static Keys DoomToXna(DoomKey key)
+        {
+            switch (key)
+            {
+                case DoomKey.Backspace: return Keys.Back;
+                case DoomKey.Tab: return Keys.Tab;
+                case DoomKey.Enter: return Keys.Enter;
+                case DoomKey.Pause: return Keys.Pause;
+                case DoomKey.Escape: return Keys.Escape;
+                case DoomKey.Space: return Keys.Space;
+                case DoomKey.PageUp: return Keys.PageUp;
+                case DoomKey.PageDown: return Keys.PageDown;
+                case DoomKey.End: return Keys.End;
+                case DoomKey.Home: return Keys.Home;
+                case DoomKey.Left: return Keys.Left;
+                case DoomKey.Up: return Keys.Up;
+                case DoomKey.Right: return Keys.Right;
+                case DoomKey.Down: return Keys.Down;
+                case DoomKey.Insert: return Keys.Insert;
+                case DoomKey.Delete: return Keys.Delete;
+                case DoomKey.Num0: return Keys.D0;
+                case DoomKey.Num1: return Keys.D1;
+                case DoomKey.Num2: return Keys.D2;
+                case DoomKey.Num3: return Keys.D3;
+                case DoomKey.Num4: return Keys.D4;
+                case DoomKey.Num5: return Keys.D5;
+                case DoomKey.Num6: return Keys.D6;
+                case DoomKey.Num7: return Keys.D7;
+                case DoomKey.Num8: return Keys.D8;
+                case DoomKey.Num9: return Keys.D9;
+                case DoomKey.A: return Keys.A;
+                case DoomKey.B: return Keys.B;
+                case DoomKey.C: return Keys.C;
+                case DoomKey.D: return Keys.D;
+                case DoomKey.E: return Keys.E;
+                case DoomKey.F: return Keys.F;
+                case DoomKey.G: return Keys.G;
+                case DoomKey.H: return Keys.H;
+                case DoomKey.I: return Keys.I;
+                case DoomKey.J: return Keys.J;
+                case DoomKey.K: return Keys.K;
+                case DoomKey.L: return Keys.L;
+                case DoomKey.M: return Keys.M;
+                case DoomKey.N: return Keys.N;
+                case DoomKey.O: return Keys.O;
+                case DoomKey.P: return Keys.P;
+                case DoomKey.Q: return Keys.Q;
+                case DoomKey.R: return Keys.R;
+                case DoomKey.S: return Keys.S;
+                case DoomKey.T: return Keys.T;
+                case DoomKey.U: return Keys.U;
+                case DoomKey.V: return Keys.V;
+                case DoomKey.W: return Keys.W;
+                case DoomKey.X: return Keys.X;
+                case DoomKey.Y: return Keys.Y;
+                case DoomKey.Z: return Keys.Z;
+                case DoomKey.Numpad0: return Keys.NumPad0;
+                case DoomKey.Numpad1: return Keys.NumPad1;
+                case DoomKey.Numpad2: return Keys.NumPad2;
+                case DoomKey.Numpad3: return Keys.NumPad3;
+                case DoomKey.Numpad4: return Keys.NumPad4;
+                case DoomKey.Numpad5: return Keys.NumPad5;
+                case DoomKey.Numpad6: return Keys.NumPad6;
+                case DoomKey.Numpad7: return Keys.NumPad7;
+                case DoomKey.Numpad8: return Keys.NumPad8;
+                case DoomKey.Numpad9: return Keys.NumPad9;
+                case DoomKey.Multiply: return Keys.Multiply;
+                case DoomKey.Add: return Keys.Add;
+                case DoomKey.Subtract: return Keys.Subtract;
+                case DoomKey.Divide: return Keys.Divide;
+                case DoomKey.F1: return Keys.F1;
+                case DoomKey.F2: return Keys.F2;
+                case DoomKey.F3: return Keys.F3;
+                case DoomKey.F4: return Keys.F4;
+                case DoomKey.F5: return Keys.F5;
+                case DoomKey.F6: return Keys.F6;
+                case DoomKey.F7: return Keys.F7;
+                case DoomKey.F8: return Keys.F8;
+                case DoomKey.F9: return Keys.F9;
+                case DoomKey.F10: return Keys.F10;
+                case DoomKey.F11: return Keys.F11;
+                case DoomKey.F12: return Keys.F12;
+                case DoomKey.F13: return Keys.F13;
+                case DoomKey.F14: return Keys.F14;
+                case DoomKey.F15: return Keys.F15;
+                case DoomKey.LShift: return Keys.LeftShift;
+                case DoomKey.RShift: return Keys.RightShift;
+                case DoomKey.LControl: return Keys.LeftControl;
+                case DoomKey.RControl: return Keys.RightControl;
+                case DoomKey.LAlt: return Keys.LeftAlt;
+                case DoomKey.RAlt: return Keys.RightAlt;
+                default: return Keys.None;
             }
         }
 

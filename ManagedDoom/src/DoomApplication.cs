@@ -86,80 +86,76 @@ namespace ManagedDoom
 
         protected override void LoadContent()
         {
-            try
+            if (args.deh.Present)
             {
-                if (args.deh.Present)
-                {
-                    DeHackEd.ReadFiles(args.deh.Value);
-                }
-
-                resource = new CommonResource(GetWadPaths(args), !args.nodeh.Present);
-
-                renderer = new SfmlRenderer(config, this, resource);
-
-                if (!args.nosound.Present && !args.nosfx.Present)
-                {
-                    sound = new SfmlSound(config, resource.Wad);
-                }
-
-                if (!args.nosound.Present && !args.nomusic.Present)
-                {
-                    music = ConfigUtilities.GetSfmlMusicInstance(config, resource.Wad);
-                }
-
-                userInput = new SfmlUserInput(config, this, !args.nomouse.Present);
-
-                events = new List<DoomEvent>();
-
-                options = new GameOptions();
-                options.GameVersion = resource.Wad.GameVersion;
-                options.GameMode = resource.Wad.GameMode;
-                options.MissionPack = resource.Wad.MissionPack;
-                options.Renderer = renderer;
-                options.Sound = sound;
-                options.Music = music;
-                options.UserInput = userInput;
-
-                menu = new DoomMenu(this);
-
-                opening = new OpeningSequence(resource, options);
-
-                cmds = new TicCmd[Player.MaxPlayerCount];
-                for (var i = 0; i < Player.MaxPlayerCount; i++)
-                {
-                    cmds[i] = new TicCmd();
-                }
-                game = new DoomGame(resource, options);
-
-                wipe = new WipeEffect(renderer.WipeBandCount, renderer.WipeHeight);
-                wiping = false;
-
-                currentState = ApplicationState.None;
-                nextState = ApplicationState.Opening;
-                needWipe = false;
-
-                sendPause = false;
-
-                quit = false;
-                quitMessage = null;
-
-                CheckGameArgs(args);
-
-                Window.KeyDown += KeyPressed;
-                Window.KeyUp += KeyReleased;
-
-                if (!args.timedemo.Present)
-                {
-                    //window.SetFramerateLimit(35);
-                }
-
-                mouseGrabbed = false;
+                DeHackEd.ReadFiles(args.deh.Value);
             }
-            catch (Exception e)
+
+            resource = new CommonResource(GetWadPaths(args), !args.nodeh.Present);
+
+            renderer = new SfmlRenderer(config, this, resource);
+
+            if (!args.nosound.Present && !args.nosfx.Present)
             {
-                Dispose();
-                ExceptionDispatchInfo.Throw(e);
+                sound = new SfmlSound(config, resource.Wad);
             }
+
+            if (!args.nosound.Present && !args.nomusic.Present)
+            {
+                music = ConfigUtilities.GetSfmlMusicInstance(config, resource.Wad);
+            }
+
+            userInput = new SfmlUserInput(config, this, !args.nomouse.Present);
+
+            events = new List<DoomEvent>();
+
+            options = new GameOptions();
+            options.GameVersion = resource.Wad.GameVersion;
+            options.GameMode = resource.Wad.GameMode;
+            options.MissionPack = resource.Wad.MissionPack;
+            options.Renderer = renderer;
+            options.Sound = sound;
+            options.Music = music;
+            options.UserInput = userInput;
+
+            menu = new DoomMenu(this);
+
+            opening = new OpeningSequence(resource, options);
+
+            cmds = new TicCmd[Player.MaxPlayerCount];
+            for (var i = 0; i < Player.MaxPlayerCount; i++)
+            {
+                cmds[i] = new TicCmd();
+            }
+            game = new DoomGame(resource, options);
+
+            wipe = new WipeEffect(renderer.WipeBandCount, renderer.WipeHeight);
+            wiping = false;
+
+            currentState = ApplicationState.None;
+            nextState = ApplicationState.Opening;
+            needWipe = false;
+
+            sendPause = false;
+
+            quit = false;
+            quitMessage = null;
+
+            CheckGameArgs(args);
+
+            Window.KeyDown += KeyPressed;
+            Window.KeyUp += KeyReleased;
+
+            if (!args.timedemo.Present)
+            {
+                TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 35);
+            }
+            else
+            {
+                // How do I unlock the FPS limit?
+            }
+
+            mouseGrabbed = false;
         }
 
         private string[] GetWadPaths(CommandLineArgs args)
@@ -257,7 +253,7 @@ namespace ManagedDoom
             DoEvents();
             if (UpdateDoom() == UpdateResult.Completed)
             {
-                //break;
+                Exit();
             }
 
             base.Update(gameTime);
@@ -538,7 +534,7 @@ namespace ManagedDoom
         {
             if (events.Count < 64)
             {
-                events.Add(new DoomEvent(EventType.KeyDown, SfmlUserInput.FromXnaKey(e.Key)));
+                events.Add(new DoomEvent(EventType.KeyDown, SfmlUserInput.XnaToDoom(e.Key)));
             }
         }
 
@@ -546,7 +542,7 @@ namespace ManagedDoom
         {
             if (events.Count < 64)
             {
-                events.Add(new DoomEvent(EventType.KeyUp, SfmlUserInput.FromXnaKey(e.Key)));
+                events.Add(new DoomEvent(EventType.KeyUp, SfmlUserInput.XnaToDoom(e.Key)));
             }
         }
 
