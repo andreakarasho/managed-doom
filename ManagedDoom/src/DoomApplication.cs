@@ -145,9 +145,8 @@ namespace ManagedDoom
 
                 CheckGameArgs(args);
 
-                //window.Closed += (sender, e) => window.Close();
-                //window.KeyPressed += KeyPressed;
-                //window.KeyReleased += KeyReleased;
+                Window.KeyDown += KeyPressed;
+                Window.KeyUp += KeyReleased;
 
                 if (!args.timedemo.Present)
                 {
@@ -535,23 +534,21 @@ namespace ManagedDoom
             return UpdateResult.None;
         }
 
-        /*
-        private void KeyPressed(object sender, KeyEventArgs e)
+        private void KeyPressed(object sender, InputKeyEventArgs e)
         {
             if (events.Count < 64)
             {
-                events.Add(new DoomEvent(EventType.KeyDown, (DoomKey)e.Code));
+                events.Add(new DoomEvent(EventType.KeyDown, SfmlUserInput.FromXnaKey(e.Key)));
             }
         }
 
-        private void KeyReleased(object sender, KeyEventArgs e)
+        private void KeyReleased(object sender, InputKeyEventArgs e)
         {
             if (events.Count < 64)
             {
-                events.Add(new DoomEvent(EventType.KeyUp, (DoomKey)e.Code));
+                events.Add(new DoomEvent(EventType.KeyUp, SfmlUserInput.FromXnaKey(e.Key)));
             }
         }
-        */
 
         private void CheckMouseState()
         {

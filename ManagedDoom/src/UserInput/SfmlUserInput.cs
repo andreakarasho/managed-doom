@@ -17,6 +17,8 @@
 
 using System;
 using System.Runtime.ExceptionServices;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 
 namespace ManagedDoom.UserInput
 {
@@ -329,6 +331,85 @@ namespace ManagedDoom.UserInput
             Console.WriteLine("Shutdown user input.");
 
             ReleaseMouse();
+        }
+
+        public static DoomKey FromXnaKey(Keys xnaKey)
+        {
+            switch (xnaKey)
+            {
+                case Keys.Back: return DoomKey.Backspace;
+                case Keys.Tab: return DoomKey.Tab;
+                case Keys.Enter: return DoomKey.Enter;
+                case Keys.Pause: return DoomKey.Pause;
+                case Keys.Escape: return DoomKey.Escape;
+                case Keys.Space: return DoomKey.Space;
+                case Keys.PageUp: return DoomKey.PageUp;
+                case Keys.PageDown: return DoomKey.PageDown;
+                case Keys.End: return DoomKey.End;
+                case Keys.Home: return DoomKey.Home;
+                case Keys.Left: return DoomKey.Left;
+                case Keys.Up: return DoomKey.Up;
+                case Keys.Right: return DoomKey.Right;
+                case Keys.Down: return DoomKey.Down;
+                case Keys.Insert: return DoomKey.Insert;
+                case Keys.Delete: return DoomKey.Delete;
+                case Keys.A: return DoomKey.A;
+                case Keys.B: return DoomKey.B;
+                case Keys.C: return DoomKey.C;
+                case Keys.D: return DoomKey.D;
+                case Keys.E: return DoomKey.E;
+                case Keys.F: return DoomKey.F;
+                case Keys.G: return DoomKey.G;
+                case Keys.H: return DoomKey.H;
+                case Keys.I: return DoomKey.I;
+                case Keys.J: return DoomKey.J;
+                case Keys.K: return DoomKey.K;
+                case Keys.L: return DoomKey.L;
+                case Keys.M: return DoomKey.M;
+                case Keys.N: return DoomKey.N;
+                case Keys.O: return DoomKey.O;
+                case Keys.P: return DoomKey.P;
+                case Keys.Q: return DoomKey.Q;
+                case Keys.R: return DoomKey.R;
+                case Keys.S: return DoomKey.S;
+                case Keys.T: return DoomKey.T;
+                case Keys.U: return DoomKey.U;
+                case Keys.V: return DoomKey.V;
+                case Keys.W: return DoomKey.W;
+                case Keys.X: return DoomKey.X;
+                case Keys.Y: return DoomKey.Y;
+                case Keys.Z: return DoomKey.Z;
+                case Keys.NumPad0: return DoomKey.Numpad0;
+                case Keys.NumPad1: return DoomKey.Numpad1;
+                case Keys.NumPad2: return DoomKey.Numpad2;
+                case Keys.NumPad3: return DoomKey.Numpad3;
+                case Keys.NumPad4: return DoomKey.Numpad4;
+                case Keys.NumPad5: return DoomKey.Numpad5;
+                case Keys.NumPad6: return DoomKey.Numpad6;
+                case Keys.NumPad7: return DoomKey.Numpad7;
+                case Keys.NumPad8: return DoomKey.Numpad8;
+                case Keys.NumPad9: return DoomKey.Numpad9;
+                case Keys.Multiply: return DoomKey.Multiply;
+                case Keys.Add: return DoomKey.Add;
+                case Keys.Subtract: return DoomKey.Subtract;
+                case Keys.Divide: return DoomKey.Divide;
+                case Keys.F1: return DoomKey.F1;
+                case Keys.F2: return DoomKey.F2;
+                case Keys.F3: return DoomKey.F3;
+                case Keys.F4: return DoomKey.F4;
+                case Keys.F5: return DoomKey.F5;
+                case Keys.F6: return DoomKey.F6;
+                case Keys.F7: return DoomKey.F7;
+                case Keys.F8: return DoomKey.F8;
+                case Keys.F9: return DoomKey.F9;
+                case Keys.F10: return DoomKey.F10;
+                case Keys.F11: return DoomKey.F11;
+                case Keys.F12: return DoomKey.F12;
+                case Keys.F13: return DoomKey.F13;
+                case Keys.F14: return DoomKey.F14;
+                case Keys.F15: return DoomKey.F15;
+                default: return DoomKey.Unknown;
+            }
         }
 
         public int MaxMouseSensitivity
