@@ -23,7 +23,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace ManagedDoom.SoftwareRendering
 {
-    public sealed class SfmlRenderer : IRenderer, IDisposable
+    public sealed class XnaRenderer : IRenderer, IDisposable
     {
         private static double[] gammaCorrectionParameters = new double[]
         {
@@ -45,17 +45,17 @@ namespace ManagedDoom.SoftwareRendering
         private DoomApplication doomApp;
         private Palette palette;
 
-        private int sfmlWindowWidth;
-        private int sfmlWindowHeight;
+        private int xnaWindowWidth;
+        private int xnaWindowHeight;
 
         private DrawScreen screen;
 
-        private int sfmlTextureWidth;
-        private int sfmlTextureHeight;
+        private int xnaTextureWidth;
+        private int xnaTextureHeight;
 
-        private byte[] sfmlTextureData;
-        private Texture2D sfmlTexture;
-        private SpriteBatch sfmlSprite;
+        private byte[] xnaTextureData;
+        private Texture2D xnaTexture;
+        private SpriteBatch xnaSprite;
 
         private MenuRenderer menu;
         private ThreeDRenderer threeD;
@@ -72,7 +72,7 @@ namespace ManagedDoom.SoftwareRendering
         private int wipeHeight;
         private byte[] wipeBuffer;
 
-        public SfmlRenderer(Config config, DoomApplication doomApp, CommonResource resource)
+        public XnaRenderer(Config config, DoomApplication doomApp, CommonResource resource)
         {
             try
             {
@@ -86,26 +86,26 @@ namespace ManagedDoom.SoftwareRendering
                 this.doomApp = doomApp;
                 this.palette = resource.Palette;
 
-                sfmlWindowWidth = doomApp.GraphicsDevice.PresentationParameters.BackBufferWidth;
-                sfmlWindowHeight = doomApp.GraphicsDevice.PresentationParameters.BackBufferHeight;
+                xnaWindowWidth = doomApp.GraphicsDevice.PresentationParameters.BackBufferWidth;
+                xnaWindowHeight = doomApp.GraphicsDevice.PresentationParameters.BackBufferHeight;
 
                 if (config.video_highresolution)
                 {
                     screen = new DrawScreen(resource.Wad, 640, 400);
-                    sfmlTextureWidth = 512;
-                    sfmlTextureHeight = 1024;
+                    xnaTextureWidth = 512;
+                    xnaTextureHeight = 1024;
                 }
                 else
                 {
                     screen = new DrawScreen(resource.Wad, 320, 200);
-                    sfmlTextureWidth = 256;
-                    sfmlTextureHeight = 512;
+                    xnaTextureWidth = 256;
+                    xnaTextureHeight = 512;
                 }
 
-                sfmlTextureData = new byte[4 * screen.Width * screen.Height];
+                xnaTextureData = new byte[4 * screen.Width * screen.Height];
 
-                sfmlTexture = new Texture2D(doomApp.GraphicsDevice, sfmlTextureWidth, sfmlTextureHeight);
-                sfmlSprite = new SpriteBatch(doomApp.GraphicsDevice);
+                xnaTexture = new Texture2D(doomApp.GraphicsDevice, xnaTextureWidth, xnaTextureHeight);
+                xnaSprite = new SpriteBatch(doomApp.GraphicsDevice);
 
                 menu = new MenuRenderer(resource.Wad, screen);
                 threeD = new ThreeDRenderer(resource, screen, config.video_gamescreensize);
@@ -282,13 +282,16 @@ namespace ManagedDoom.SoftwareRendering
         private void Display(uint[] colors)
         {
             var screenData = screen.Data;
-            var p = MemoryMarshal.Cast<byte, uint>(sfmlTextureData);
+
+            var p = MemoryMarshal.Cast<byte, uint>(xnaTextureData);
             for (var i = 0; i < p.Length; i++)
             {
                 p[i] = colors[screenData[i]];
             }
-            sfmlTexture.SetData(0, new Rectangle(0, 0, screen.Height, screen.Width), sfmlTextureData, 0, sfmlTextureData.Length);
-            sfmlSprite.Begin(
+
+            xnaTexture.SetData(0, new Rectangle(0, 0, screen.Height, screen.Width), xnaTextureData, 0, xnaTextureData.Length);
+
+            xnaSprite.Begin(
                 SpriteSortMode.Immediate,
                 BlendState.Opaque,
                 SamplerState.PointClamp,
@@ -296,17 +299,18 @@ namespace ManagedDoom.SoftwareRendering
                 null,
                 null,
                 Matrix.Identity);
-            //sfmlSprite.Draw(sfmlTexture, Vector2.Zero, Color.White);
-            sfmlSprite.Draw(
-                sfmlTexture,
-                new Rectangle(0, 0, sfmlWindowHeight, sfmlWindowWidth),
+
+            xnaSprite.Draw(
+                xnaTexture,
+                new Rectangle(0, 0, xnaWindowHeight, xnaWindowWidth),
                 new Rectangle(0, 0, screen.Height, screen.Width),
                 Color.White,
                 -MathF.PI / 2,
                 new Vector2(screen.Height, 0),
                 SpriteEffects.FlipHorizontally,
                 0F);
-            sfmlSprite.End();
+
+            xnaSprite.End();
         }
 
         private static int GetPaletteNumber(Player player)
@@ -364,16 +368,16 @@ namespace ManagedDoom.SoftwareRendering
         {
             Console.WriteLine("Shutdown renderer.");
 
-            if (sfmlSprite != null)
+            if (xnaSprite != null)
             {
-                sfmlSprite.Dispose();
-                sfmlSprite = null;
+                xnaSprite.Dispose();
+                xnaSprite = null;
             }
 
-            if (sfmlTexture != null)
+            if (xnaTexture != null)
             {
-                sfmlTexture.Dispose();
-                sfmlTexture = null;
+                xnaTexture.Dispose();
+                xnaTexture = null;
             }
         }
 

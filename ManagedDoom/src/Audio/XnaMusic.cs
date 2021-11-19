@@ -25,7 +25,7 @@ using MeltySynth;
 
 namespace ManagedDoom.Audio
 {
-    public sealed class SfmlMusic : IMusic, IDisposable
+    public sealed class XnaMusic : IMusic, IDisposable
     {
         private Config config;
         private Wad wad;
@@ -33,7 +33,7 @@ namespace ManagedDoom.Audio
         private MusStream stream;
         private Bgm current;
 
-        public SfmlMusic(Config config, Wad wad, string sfPath)
+        public XnaMusic(Config config, Wad wad, string sfPath)
         {
             try
             {
@@ -139,7 +139,7 @@ namespace ManagedDoom.Audio
 
         private class MusStream : IDisposable
         {
-            private SfmlMusic parent;
+            private XnaMusic parent;
             private Config config;
 
             private Synthesizer synthesizer;
@@ -153,7 +153,7 @@ namespace ManagedDoom.Audio
             private IDecoder current;
             private IDecoder reserved;
 
-            public MusStream(SfmlMusic parent, Config config, string sfPath)
+            public MusStream(XnaMusic parent, Config config, string sfPath)
             {
                 this.parent = parent;
                 this.config = config;

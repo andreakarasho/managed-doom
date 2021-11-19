@@ -23,7 +23,7 @@ using Microsoft.Xna.Framework.Audio;
 
 namespace ManagedDoom.Audio
 {
-    public sealed class SfmlSound : ISound, IDisposable
+    public sealed class XnaSound : ISound, IDisposable
     {
         private static readonly int channelCount = 8;
 
@@ -53,7 +53,7 @@ namespace ManagedDoom.Audio
 
         private DateTime lastUpdate;
 
-        public SfmlSound(Config config, Wad wad)
+        public XnaSound(Config config, Wad wad)
         {
             try
             {

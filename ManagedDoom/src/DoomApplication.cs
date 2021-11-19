@@ -33,10 +33,10 @@ namespace ManagedDoom
         private GraphicsDeviceManager graphics;
 
         private CommonResource resource;
-        private SfmlRenderer renderer;
-        private SfmlSound sound;
-        private SfmlMusic music;
-        private SfmlUserInput userInput;
+        private XnaRenderer renderer;
+        private XnaSound sound;
+        private XnaMusic music;
+        private XnaUserInput userInput;
 
         private List<DoomEvent> events;
 
@@ -93,19 +93,19 @@ namespace ManagedDoom
 
             resource = new CommonResource(GetWadPaths(args), !args.nodeh.Present);
 
-            renderer = new SfmlRenderer(config, this, resource);
+            renderer = new XnaRenderer(config, this, resource);
 
             if (!args.nosound.Present && !args.nosfx.Present)
             {
-                sound = new SfmlSound(config, resource.Wad);
+                sound = new XnaSound(config, resource.Wad);
             }
 
             if (!args.nosound.Present && !args.nomusic.Present)
             {
-                music = ConfigUtilities.GetSfmlMusicInstance(config, resource.Wad);
+                music = ConfigUtilities.GetMusicInstance(config, resource.Wad);
             }
 
-            userInput = new SfmlUserInput(config, this, !args.nomouse.Present);
+            userInput = new XnaUserInput(config, this, !args.nomouse.Present);
 
             events = new List<DoomEvent>();
 
@@ -534,7 +534,7 @@ namespace ManagedDoom
         {
             if (events.Count < 64)
             {
-                events.Add(new DoomEvent(EventType.KeyDown, SfmlUserInput.XnaToDoom(e.Key)));
+                events.Add(new DoomEvent(EventType.KeyDown, XnaUserInput.XnaToDoom(e.Key)));
             }
         }
 
@@ -542,7 +542,7 @@ namespace ManagedDoom
         {
             if (events.Count < 64)
             {
-                events.Add(new DoomEvent(EventType.KeyUp, SfmlUserInput.XnaToDoom(e.Key)));
+                events.Add(new DoomEvent(EventType.KeyUp, XnaUserInput.XnaToDoom(e.Key)));
             }
         }
 

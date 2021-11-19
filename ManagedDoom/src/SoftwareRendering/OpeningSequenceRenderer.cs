@@ -22,11 +22,11 @@ namespace ManagedDoom.SoftwareRendering
     public class OpeningSequenceRenderer
     {
         private DrawScreen screen;
-        private SfmlRenderer parent;
+        private XnaRenderer parent;
 
         private PatchCache cache;
 
-        public OpeningSequenceRenderer(Wad wad, DrawScreen screen, SfmlRenderer parent)
+        public OpeningSequenceRenderer(Wad wad, DrawScreen screen, XnaRenderer parent)
         {
             this.screen = screen;
             this.parent = parent;

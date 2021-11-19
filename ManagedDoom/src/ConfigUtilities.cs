@@ -107,12 +107,12 @@ namespace ManagedDoom
             return iwadNames.Contains(name);
         }
 
-        public static SfmlMusic GetSfmlMusicInstance(Config config, Wad wad)
+        public static XnaMusic GetMusicInstance(Config config, Wad wad)
         {
             var sfPath = Path.Combine(GetExeDirectory(), config.audio_soundfont);
             if (File.Exists(sfPath))
             {
-                return new SfmlMusic(config, wad, sfPath);
+                return new XnaMusic(config, wad, sfPath);
             }
             else
             {

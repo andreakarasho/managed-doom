@@ -22,7 +22,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace ManagedDoom.UserInput
 {
-    public sealed class SfmlUserInput : IUserInput, IDisposable
+    public sealed class XnaUserInput : IUserInput, IDisposable
     {
         private Config config;
 
@@ -40,7 +40,7 @@ namespace ManagedDoom.UserInput
         private int mouseY;
         private bool cursorCentered;
 
-        public SfmlUserInput(Config config, DoomApplication doomApp, bool useMouse)
+        public XnaUserInput(Config config, DoomApplication doomApp, bool useMouse)
         {
             try
             {
