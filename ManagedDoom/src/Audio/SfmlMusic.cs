@@ -18,23 +18,23 @@
 using System;
 using System.IO;
 using System.Runtime.ExceptionServices;
+using System.Runtime.InteropServices;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using MeltySynth;
 
 namespace ManagedDoom.Audio
 {
     public sealed class SfmlMusic : IMusic, IDisposable
     {
-        /*
         private Config config;
         private Wad wad;
 
         private MusStream stream;
         private Bgm current;
-        */
 
         public SfmlMusic(Config config, Wad wad, string sfPath)
         {
-            /*
             try
             {
                 Console.Write("Initialize music: ");
@@ -53,12 +53,10 @@ namespace ManagedDoom.Audio
                 Dispose();
                 ExceptionDispatchInfo.Throw(e);
             }
-            */
         }
 
         public void StartMusic(Bgm bgm, bool loop)
         {
-            /*
             if (bgm == current)
             {
                 return;
@@ -70,7 +68,6 @@ namespace ManagedDoom.Audio
             stream.SetDecoder(decoder);
 
             current = bgm;
-            */
         }
 
         private IDecoder ReadData(byte[] data, bool loop)
@@ -108,16 +105,13 @@ namespace ManagedDoom.Audio
 
         public void Dispose()
         {
-            /*
             Console.WriteLine("Shutdown music.");
 
             if (stream != null)
             {
-                stream.Stop();
                 stream.Dispose();
                 stream = null;
             }
-            */
         }
 
         public int MaxVolume
@@ -132,29 +126,29 @@ namespace ManagedDoom.Audio
         {
             get
             {
-                return 0;// config.audio_musicvolume;
+                return config.audio_musicvolume;
             }
 
             set
             {
-                //config.audio_musicvolume = value;
+                config.audio_musicvolume = value;
             }
         }
 
 
 
-        /*
-        private class MusStream : SoundStream
+        private class MusStream : IDisposable
         {
             private SfmlMusic parent;
             private Config config;
 
             private Synthesizer synthesizer;
 
+            private DynamicSoundEffectInstance dynamicSound;
             private int batchLength;
             private float[] left;
             private float[] right;
-            private short[] batch;
+            private byte[] batch;
 
             private IDecoder current;
             private IDecoder reserved;
@@ -170,25 +164,27 @@ namespace ManagedDoom.Audio
                 settings.BlockSize = MusDecoder.BlockLength;
                 synthesizer = new Synthesizer(sfPath, settings);
 
+                dynamicSound = new DynamicSoundEffectInstance(MusDecoder.SampleRate, AudioChannels.Stereo);
                 batchLength = (int)Math.Round(0.05 * MusDecoder.SampleRate);
                 left = new float[batchLength];
                 right = new float[batchLength];
-                batch = new short[2 * batchLength];
+                batch = new byte[4 * batchLength];
 
-                Initialize(2, (uint)MusDecoder.SampleRate);
+                dynamicSound.BufferNeeded += (e, s) => OnGetData();
             }
 
             public void SetDecoder(IDecoder decoder)
             {
                 reserved = decoder;
 
-                if (Status == SoundStatus.Stopped)
+                if (dynamicSound.State == SoundState.Stopped)
                 {
-                    Play();
+                    OnGetData();
+                    dynamicSound.Play();
                 }
             }
 
-            protected override bool OnGetData(out short[] samples)
+            private void OnGetData()
             {
                 if (reserved != current)
                 {
@@ -200,7 +196,8 @@ namespace ManagedDoom.Audio
 
                 current.RenderWaveform(synthesizer, left, right);
 
-                var pos = 0;
+                var i = 0;
+                var p = MemoryMarshal.Cast<byte, short>(batch);
 
                 for (var t = 0; t < batchLength; t++)
                 {
@@ -224,20 +221,23 @@ namespace ManagedDoom.Audio
                         sampleRight = short.MaxValue;
                     }
 
-                    batch[pos++] = (short)sampleLeft;
-                    batch[pos++] = (short)sampleRight;
+                    p[i++] = (short)sampleLeft;
+                    p[i++] = (short)sampleRight;
                 }
 
-                samples = batch;
-
-                return true;
+                dynamicSound.SubmitBuffer(batch);
             }
 
-            protected override void OnSeek(Time timeOffset)
+            public void Dispose()
             {
+                if (dynamicSound != null)
+                {
+                    dynamicSound.Stop();
+                    dynamicSound.Dispose();
+                    dynamicSound = null;
+                }
             }
         }
-        */
 
 
 
