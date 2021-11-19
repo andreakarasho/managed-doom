@@ -1,3 +1,17 @@
+# MonoDoom
+
+This is an experimental port of Managed Doom to MonoGame.
+
+## Known issues
+
+* Fullscreen does not work.
+* Mouse does not work.
+* Sound is incomplete.
+
+Below is the original readme.
+
+---
+
 # Managed Doom
 
 ![Doom II MAP01 screenshot](screenshots/doom2-map01.png)
