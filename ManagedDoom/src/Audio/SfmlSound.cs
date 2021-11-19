@@ -16,7 +16,10 @@
 
 
 using System;
+using System.Runtime.InteropServices;
 using System.Runtime.ExceptionServices;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 
 namespace ManagedDoom.Audio
 {
@@ -33,16 +36,15 @@ namespace ManagedDoom.Audio
 
         private Config config;
 
-        /*
-        private SoundBuffer[] buffers;
+        private SoundEffect[] buffers;
         private float[] amplitudes;
 
         private DoomRandom random;
 
-        private Sound[] channels;
+        private SoundEffectInstance[] channels;
         private ChannelInfo[] infos;
 
-        private Sound uiChannel;
+        private SoundEffectInstance uiChannel;
         private Sfx uiReserved;
 
         private Mobj listener;
@@ -50,7 +52,6 @@ namespace ManagedDoom.Audio
         private float masterVolumeDecay;
 
         private DateTime lastUpdate;
-        */
 
         public SfmlSound(Config config, Wad wad)
         {
@@ -58,13 +59,11 @@ namespace ManagedDoom.Audio
             {
                 Console.Write("Initialize sound: ");
 
-
-                /*
                 this.config = config;
 
                 config.audio_soundvolume = Math.Clamp(config.audio_soundvolume, 0, MaxVolume);
 
-                buffers = new SoundBuffer[DoomInfo.SfxNames.Length];
+                buffers = new SoundEffect[DoomInfo.SfxNames.Length];
                 amplitudes = new float[DoomInfo.SfxNames.Length];
 
                 if (config.audio_randompitch)
@@ -86,27 +85,24 @@ namespace ManagedDoom.Audio
                     var samples = GetSamples(wad, name, out sampleRate, out sampleCount);
                     if (samples != null)
                     {
-                        buffers[i] = new SoundBuffer(samples, 1, (uint)sampleRate);
-                        amplitudes[i] = GetAmplitude(samples, sampleRate, sampleCount);
+                        buffers[i] = new SoundEffect(samples, sampleRate, AudioChannels.Mono);
+                        amplitudes[i] = GetAmplitude(MemoryMarshal.Cast<byte, short>(samples), sampleRate, sampleCount);
                     }
                 }
 
-                channels = new Sound[channelCount];
+                channels = new SoundEffectInstance[channelCount];
                 infos = new ChannelInfo[channelCount];
                 for (var i = 0; i < channels.Length; i++)
                 {
-                    channels[i] = new Sound();
                     infos[i] = new ChannelInfo();
                 }
 
-                uiChannel = new Sound();
+                uiChannel = null;
                 uiReserved = Sfx.NONE;
 
                 masterVolumeDecay = (float)config.audio_soundvolume / MaxVolume;
 
                 lastUpdate = DateTime.MinValue;
-
-                */
 
                 Console.WriteLine("OK");
             }
@@ -118,7 +114,7 @@ namespace ManagedDoom.Audio
             }
         }
 
-        private static short[] GetSamples(Wad wad, string name, out int sampleRate, out int sampleCount)
+        private static byte[] GetSamples(Wad wad, string name, out int sampleRate, out int sampleCount)
         {
             var data = wad.ReadLump(name);
 
@@ -141,10 +137,11 @@ namespace ManagedDoom.Audio
 
             if (sampleCount > 0)
             {
-                var samples = new short[sampleCount];
-                for (var t = 0; t < samples.Length; t++)
+                var samples = new byte[2 * sampleCount];
+                var p = MemoryMarshal.Cast<byte, short>(samples);
+                for (var t = 0; t < p.Length; t++)
                 {
-                    samples[t] = (short)((data[offset + t] - 128) << 8);
+                    p[t] = (short)((data[offset + t] - 128) << 8);
                 }
                 return samples;
             }
@@ -189,7 +186,7 @@ namespace ManagedDoom.Audio
             return true;
         }
 
-        private static float GetAmplitude(short[] samples, int sampleRate, int sampleCount)
+        private static float GetAmplitude(Span<short> samples, int sampleRate, int sampleCount)
         {
             var max = 0;
             if (sampleCount > 0)
@@ -213,12 +210,11 @@ namespace ManagedDoom.Audio
 
         public void SetListener(Mobj listener)
         {
-            //this.listener = listener;
+            this.listener = listener;
         }
 
         public void Update()
         {
-            /*
             var now = DateTime.Now;
             if ((now - lastUpdate).TotalSeconds < 0.01)
             {
@@ -233,7 +229,7 @@ namespace ManagedDoom.Audio
 
                 if (info.Playing != Sfx.NONE)
                 {
-                    if (channel.Status != SoundStatus.Stopped)
+                    if (channel.State != SoundState.Stopped)
                     {
                         if (info.Type == SfxType.Diffuse)
                         {
@@ -262,7 +258,7 @@ namespace ManagedDoom.Audio
                         channel.Stop();
                     }
 
-                    channel.SoundBuffer = buffers[(int)info.Reserved];
+                    channel = channels[i] = buffers[(int)info.Reserved].CreateInstance();
                     SetParam(channel, info);
                     channel.Pitch = GetPitch(info.Type, info.Reserved);
                     channel.Play();
@@ -273,30 +269,27 @@ namespace ManagedDoom.Audio
 
             if (uiReserved != Sfx.NONE)
             {
-                if (uiChannel.Status == SoundStatus.Playing)
+                if (uiChannel != null && uiChannel.State == SoundState.Playing)
                 {
                     uiChannel.Stop();
                 }
-                uiChannel.Volume = 100 * masterVolumeDecay;
-                uiChannel.SoundBuffer = buffers[(int)uiReserved];
+                uiChannel = buffers[(int)uiReserved].CreateInstance();
+                uiChannel.Volume = masterVolumeDecay;
                 uiChannel.Play();
                 uiReserved = Sfx.NONE;
             }
 
             lastUpdate = now;
-            */
         }
 
         public void StartSound(Sfx sfx)
         {
-            /*
             if (buffers[(int)sfx] == null)
             {
                 return;
             }
 
             uiReserved = sfx;
-            */
         }
 
         public void StartSound(Mobj mobj, Sfx sfx, SfxType type)
@@ -306,7 +299,6 @@ namespace ManagedDoom.Audio
 
         public void StartSound(Mobj mobj, Sfx sfx, SfxType type, int volume)
         {
-            /*
             if (buffers[(int)sfx] == null)
             {
                 return;
@@ -333,7 +325,7 @@ namespace ManagedDoom.Audio
                 {
                     info.Reserved = sfx;
                     info.Priority = priority;
-                    info.Volume = volume;
+                    info.Volume = volume / 100F;
                     return;
                 }
             }
@@ -347,7 +339,7 @@ namespace ManagedDoom.Audio
                     info.Priority = priority;
                     info.Source = mobj;
                     info.Type = type;
-                    info.Volume = volume;
+                    info.Volume = volume / 100F;
                     return;
                 }
             }
@@ -370,14 +362,12 @@ namespace ManagedDoom.Audio
                 info.Priority = priority;
                 info.Source = mobj;
                 info.Type = type;
-                info.Volume = volume;
+                info.Volume = volume / 100F;
             }
-            */
         }
 
         public void StopSound(Mobj mobj)
         {
-            /*
             for (var i = 0; i < infos.Length; i++)
             {
                 var info = infos[i];
@@ -389,12 +379,10 @@ namespace ManagedDoom.Audio
                     info.Volume /= 5;
                 }
             }
-            */
         }
 
         public void Reset()
         {
-            /*
             if (random != null)
             {
                 random.Clear();
@@ -402,12 +390,15 @@ namespace ManagedDoom.Audio
 
             for (var i = 0; i < infos.Length; i++)
             {
-                channels[i].Stop();
+                if (channels[i] != null)
+                {
+                    channels[i].Stop();
+                }
+
                 infos[i].Clear();
             }
 
             listener = null;
-            */
         }
 
         public void Pause()
@@ -441,12 +432,13 @@ namespace ManagedDoom.Audio
             */
         }
 
-        /*
-        private void SetParam(Sound sound, ChannelInfo info)
+        private void SetParam(SoundEffectInstance sound, ChannelInfo info)
         {
+            // Changing pan makes the sound weird. Why?
+
             if (info.Type == SfxType.Diffuse)
             {
-                sound.Position = new Vector3f(0, 1, 0);
+                //sound.Pan = 0F;
                 sound.Volume = masterVolumeDecay * info.Volume;
             }
             else
@@ -469,19 +461,18 @@ namespace ManagedDoom.Audio
 
                 if (Math.Abs(x) < 16 && Math.Abs(y) < 16)
                 {
-                    sound.Position = new Vector3f(0, 1, 0);
+                    //sound.Pan = 0F;
                     sound.Volume = masterVolumeDecay * info.Volume;
                 }
                 else
                 {
                     var dist = MathF.Sqrt(x * x + y * y);
                     var angle = MathF.Atan2(y, x) - (float)listener.Angle.ToRadian() + MathF.PI / 2;
-                    sound.Position = new Vector3f(MathF.Cos(angle), MathF.Sin(angle), 0);
+                    //sound.Pan = MathF.Cos(angle);
                     sound.Volume = masterVolumeDecay * GetDistanceDecay(dist) * info.Volume;
                 }
             }
         }
-        */
 
         private float GetDistanceDecay(float dist)
         {
@@ -497,36 +488,13 @@ namespace ManagedDoom.Audio
 
         private float GetPitch(SfxType type, Sfx sfx)
         {
-            /*
-            if (random != null)
-            {
-                if (sfx == Sfx.ITEMUP || sfx == Sfx.TINK || sfx == Sfx.RADIO)
-                {
-                    return 1.0F;
-                }
-                else if (type == SfxType.Voice)
-                {
-                    return 1.0F + 0.075F * (random.Next() - 128) / 128;
-                }
-                else
-                {
-                    return 1.0F + 0.025F * (random.Next() - 128) / 128;
-                }
-            }
-            else
-            {
-                return 1.0F;
-            }
-            */
-
-            return 1;
+            return 0F;
         }
 
         public void Dispose()
         {
             Console.WriteLine("Shutdown sound.");
 
-            /*
             if (channels != null)
             {
                 for (var i = 0; i < channels.Length; i++)
@@ -559,7 +527,6 @@ namespace ManagedDoom.Audio
                 uiChannel.Dispose();
                 uiChannel = null;
             }
-            */
         }
 
         public int MaxVolume
@@ -580,7 +547,7 @@ namespace ManagedDoom.Audio
             set
             {
                 config.audio_soundvolume = value;
-                //masterVolumeDecay = (float)config.audio_soundvolume / MaxVolume;
+                masterVolumeDecay = (float)config.audio_soundvolume / MaxVolume;
             }
         }
 
@@ -594,7 +561,7 @@ namespace ManagedDoom.Audio
 
             public Mobj Source;
             public SfxType Type;
-            public int Volume;
+            public float Volume;
             public Fixed LastX;
             public Fixed LastY;
 
