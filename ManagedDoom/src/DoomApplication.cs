@@ -29,9 +29,7 @@ namespace ManagedDoom
     public sealed class DoomApplication : Game
     {
         private CommandLineArgs args;
-
         private Config config;
-
         private GraphicsDeviceManager graphics;
 
         private CommonResource resource;
@@ -70,17 +68,20 @@ namespace ManagedDoom
         public DoomApplication(CommandLineArgs args)
         {
             this.args = args;
-
             config = new Config(ConfigUtilities.GetConfigPath());
-
             graphics = new GraphicsDeviceManager(this);
+        }
 
+        protected override void Initialize()
+        {
             config.video_screenwidth = Math.Clamp(config.video_screenwidth, 320, 3200);
             config.video_screenheight = Math.Clamp(config.video_screenheight, 200, 2000);
 
             graphics.PreferredBackBufferWidth = config.video_screenwidth;
             graphics.PreferredBackBufferHeight = config.video_screenheight;
             graphics.ApplyChanges();
+
+            base.Initialize();
         }
 
         protected override void LoadContent()

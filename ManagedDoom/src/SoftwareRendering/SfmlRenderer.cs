@@ -89,6 +89,8 @@ namespace ManagedDoom.SoftwareRendering
                 sfmlWindowWidth = doomApp.GraphicsDevice.PresentationParameters.BackBufferWidth;
                 sfmlWindowHeight = doomApp.GraphicsDevice.PresentationParameters.BackBufferHeight;
 
+                Console.WriteLine(sfmlWindowWidth + " x " + sfmlWindowHeight);
+
                 if (config.video_highresolution)
                 {
                     screen = new DrawScreen(resource.Wad, 640, 400);
@@ -288,8 +290,24 @@ namespace ManagedDoom.SoftwareRendering
                 p[i] = colors[screenData[i]];
             }
             sfmlTexture.SetData(0, new Rectangle(0, 0, screen.Height, screen.Width), sfmlTextureData, 0, sfmlTextureData.Length);
-            sfmlSprite.Begin();
-            sfmlSprite.Draw(sfmlTexture, Vector2.Zero, Color.White);
+            sfmlSprite.Begin(
+                SpriteSortMode.Immediate,
+                BlendState.Opaque,
+                SamplerState.PointClamp,
+                null,
+                null,
+                null,
+                Matrix.Identity);
+            //sfmlSprite.Draw(sfmlTexture, Vector2.Zero, Color.White);
+            sfmlSprite.Draw(
+                sfmlTexture,
+                new Rectangle(0, 0, sfmlWindowHeight, sfmlWindowWidth),
+                new Rectangle(0, 0, screen.Height, screen.Width),
+                Color.White,
+                -MathF.PI / 2,
+                new Vector2(screen.Height, 0),
+                SpriteEffects.FlipHorizontally,
+                0F);
             sfmlSprite.End();
         }
 
