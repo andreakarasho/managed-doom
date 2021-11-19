@@ -20,7 +20,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using ManagedDoom.Audio;
-using SFML.Window;
 
 namespace ManagedDoom
 {
@@ -47,6 +46,7 @@ namespace ManagedDoom
             return Path.Combine(GetExeDirectory(), "managed-doom.cfg");
         }
 
+        /*
         public static VideoMode GetDefaultVideoMode()
         {
             var desktop = VideoMode.DesktopMode;
@@ -74,6 +74,7 @@ namespace ManagedDoom
 
             return new VideoMode((uint)currentWidth, (uint)currentHeight);
         }
+        */
 
         public static string GetDefaultIwadPath()
         {

@@ -18,22 +18,23 @@
 using System;
 using System.IO;
 using System.Runtime.ExceptionServices;
-using SFML.Audio;
-using SFML.System;
 using MeltySynth;
 
 namespace ManagedDoom.Audio
 {
     public sealed class SfmlMusic : IMusic, IDisposable
     {
+        /*
         private Config config;
         private Wad wad;
 
         private MusStream stream;
         private Bgm current;
+        */
 
         public SfmlMusic(Config config, Wad wad, string sfPath)
         {
+            /*
             try
             {
                 Console.Write("Initialize music: ");
@@ -52,10 +53,12 @@ namespace ManagedDoom.Audio
                 Dispose();
                 ExceptionDispatchInfo.Throw(e);
             }
+            */
         }
 
         public void StartMusic(Bgm bgm, bool loop)
         {
+            /*
             if (bgm == current)
             {
                 return;
@@ -67,6 +70,7 @@ namespace ManagedDoom.Audio
             stream.SetDecoder(decoder);
 
             current = bgm;
+            */
         }
 
         private IDecoder ReadData(byte[] data, bool loop)
@@ -104,6 +108,7 @@ namespace ManagedDoom.Audio
 
         public void Dispose()
         {
+            /*
             Console.WriteLine("Shutdown music.");
 
             if (stream != null)
@@ -112,6 +117,7 @@ namespace ManagedDoom.Audio
                 stream.Dispose();
                 stream = null;
             }
+            */
         }
 
         public int MaxVolume
@@ -126,17 +132,18 @@ namespace ManagedDoom.Audio
         {
             get
             {
-                return config.audio_musicvolume;
+                return 0;// config.audio_musicvolume;
             }
 
             set
             {
-                config.audio_musicvolume = value;
+                //config.audio_musicvolume = value;
             }
         }
 
 
 
+        /*
         private class MusStream : SoundStream
         {
             private SfmlMusic parent;
@@ -230,6 +237,7 @@ namespace ManagedDoom.Audio
             {
             }
         }
+        */
 
 
 

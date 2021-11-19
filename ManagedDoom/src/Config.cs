@@ -125,9 +125,9 @@ namespace ManagedDoom
 
             game_alwaysrun = true;
 
-            var vm = ConfigUtilities.GetDefaultVideoMode();
-            video_screenwidth = (int)vm.Width;
-            video_screenheight = (int)vm.Height;
+            //var vm = ConfigUtilities.GetDefaultVideoMode();
+            video_screenwidth = 2 * 640;
+            video_screenheight = 2 * 400;
             video_fullscreen = false;
             video_highresolution = true;
             video_gamescreensize = 7;

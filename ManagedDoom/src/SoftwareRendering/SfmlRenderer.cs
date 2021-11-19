@@ -18,8 +18,8 @@
 using System;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
-using SFML.Graphics;
-using SFML.System;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace ManagedDoom.SoftwareRendering
 {
@@ -42,7 +42,7 @@ namespace ManagedDoom.SoftwareRendering
 
         private Config config;
 
-        private RenderWindow sfmlWindow;
+        private DoomApplication doomApp;
         private Palette palette;
 
         private int sfmlWindowWidth;
@@ -54,9 +54,8 @@ namespace ManagedDoom.SoftwareRendering
         private int sfmlTextureHeight;
 
         private byte[] sfmlTextureData;
-        private SFML.Graphics.Texture sfmlTexture;
-        private SFML.Graphics.Sprite sfmlSprite;
-        private SFML.Graphics.RenderStates sfmlStates;
+        private Texture2D sfmlTexture;
+        private SpriteBatch sfmlSprite;
 
         private MenuRenderer menu;
         private ThreeDRenderer threeD;
@@ -73,7 +72,7 @@ namespace ManagedDoom.SoftwareRendering
         private int wipeHeight;
         private byte[] wipeBuffer;
 
-        public SfmlRenderer(Config config, RenderWindow window, CommonResource resource)
+        public SfmlRenderer(Config config, DoomApplication doomApp, CommonResource resource)
         {
             try
             {
@@ -84,11 +83,11 @@ namespace ManagedDoom.SoftwareRendering
                 config.video_gamescreensize = Math.Clamp(config.video_gamescreensize, 0, MaxWindowSize);
                 config.video_gammacorrection = Math.Clamp(config.video_gammacorrection, 0, MaxGammaCorrectionLevel);
 
-                sfmlWindow = window;
-                palette = resource.Palette;
+                this.doomApp = doomApp;
+                this.palette = resource.Palette;
 
-                sfmlWindowWidth = (int)window.Size.X;
-                sfmlWindowHeight = (int)window.Size.Y;
+                sfmlWindowWidth = doomApp.GraphicsDevice.PresentationParameters.BackBufferWidth;
+                sfmlWindowHeight = doomApp.GraphicsDevice.PresentationParameters.BackBufferHeight;
 
                 if (config.video_highresolution)
                 {
@@ -105,17 +104,8 @@ namespace ManagedDoom.SoftwareRendering
 
                 sfmlTextureData = new byte[4 * screen.Width * screen.Height];
 
-                sfmlTexture = new SFML.Graphics.Texture((uint)sfmlTextureWidth, (uint)sfmlTextureHeight);
-                sfmlSprite = new SFML.Graphics.Sprite(sfmlTexture);
-
-                sfmlSprite.Position = new Vector2f(0, 0);
-                sfmlSprite.Rotation = 90;
-                var scaleX = (float)sfmlWindowWidth / screen.Width;
-                var scaleY = (float)sfmlWindowHeight / screen.Height;
-                sfmlSprite.Scale = new Vector2f(scaleY, -scaleX);
-                sfmlSprite.TextureRect = new IntRect(0, 0, screen.Height, screen.Width);
-
-                sfmlStates = new RenderStates(BlendMode.None);
+                sfmlTexture = new Texture2D(doomApp.GraphicsDevice, sfmlTextureWidth, sfmlTextureHeight);
+                sfmlSprite = new SpriteBatch(doomApp.GraphicsDevice);
 
                 menu = new MenuRenderer(resource.Wad, screen);
                 threeD = new ThreeDRenderer(resource, screen, config.video_gamescreensize);
@@ -297,9 +287,10 @@ namespace ManagedDoom.SoftwareRendering
             {
                 p[i] = colors[screenData[i]];
             }
-            sfmlTexture.Update(sfmlTextureData, (uint)screen.Height, (uint)screen.Width, 0, 0);
-            sfmlWindow.Draw(sfmlSprite, sfmlStates);
-            sfmlWindow.Display();
+            sfmlTexture.SetData(0, new Rectangle(0, 0, screen.Height, screen.Width), sfmlTextureData, 0, sfmlTextureData.Length);
+            sfmlSprite.Begin();
+            sfmlSprite.Draw(sfmlTexture, Vector2.Zero, Color.White);
+            sfmlSprite.End();
         }
 
         private static int GetPaletteNumber(Player player)

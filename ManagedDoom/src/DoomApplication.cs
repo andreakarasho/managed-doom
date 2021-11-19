@@ -18,19 +18,21 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.ExceptionServices;
-using SFML.Graphics;
-using SFML.Window;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using ManagedDoom.SoftwareRendering;
 using ManagedDoom.Audio;
 using ManagedDoom.UserInput;
 
 namespace ManagedDoom
 {
-    public sealed class DoomApplication : IDisposable
+    public sealed class DoomApplication : Game
     {
+        private CommandLineArgs args;
+
         private Config config;
 
-        private RenderWindow window;
+        private GraphicsDeviceManager graphics;
 
         private CommonResource resource;
         private SfmlRenderer renderer;
@@ -67,22 +69,24 @@ namespace ManagedDoom
 
         public DoomApplication(CommandLineArgs args)
         {
+            this.args = args;
+
             config = new Config(ConfigUtilities.GetConfigPath());
 
+            graphics = new GraphicsDeviceManager(this);
+
+            config.video_screenwidth = Math.Clamp(config.video_screenwidth, 320, 3200);
+            config.video_screenheight = Math.Clamp(config.video_screenheight, 200, 2000);
+
+            graphics.PreferredBackBufferWidth = config.video_screenwidth;
+            graphics.PreferredBackBufferHeight = config.video_screenheight;
+            graphics.ApplyChanges();
+        }
+
+        protected override void LoadContent()
+        {
             try
             {
-                config.video_screenwidth = Math.Clamp(config.video_screenwidth, 320, 3200);
-                config.video_screenheight = Math.Clamp(config.video_screenheight, 200, 2000);
-                var videoMode = new VideoMode((uint)config.video_screenwidth, (uint)config.video_screenheight);
-                var style = Styles.Close | Styles.Titlebar;
-                if (config.video_fullscreen)
-                {
-                    style = Styles.Fullscreen;
-                }
-                window = new RenderWindow(videoMode, ApplicationInfo.Title, style);
-                window.Clear(new Color(64, 64, 64));
-                window.Display();
-
                 if (args.deh.Present)
                 {
                     DeHackEd.ReadFiles(args.deh.Value);
@@ -90,7 +94,7 @@ namespace ManagedDoom
 
                 resource = new CommonResource(GetWadPaths(args), !args.nodeh.Present);
 
-                renderer = new SfmlRenderer(config, window, resource);
+                renderer = new SfmlRenderer(config, this, resource);
 
                 if (!args.nosound.Present && !args.nosfx.Present)
                 {
@@ -102,7 +106,7 @@ namespace ManagedDoom
                     music = ConfigUtilities.GetSfmlMusicInstance(config, resource.Wad);
                 }
 
-                userInput = new SfmlUserInput(config, window, !args.nomouse.Present);
+                userInput = new SfmlUserInput(config, this, !args.nomouse.Present);
 
                 events = new List<DoomEvent>();
 
@@ -140,13 +144,13 @@ namespace ManagedDoom
 
                 CheckGameArgs(args);
 
-                window.Closed += (sender, e) => window.Close();
-                window.KeyPressed += KeyPressed;
-                window.KeyReleased += KeyReleased;
+                //window.Closed += (sender, e) => window.Close();
+                //window.KeyPressed += KeyPressed;
+                //window.KeyReleased += KeyReleased;
 
                 if (!args.timedemo.Present)
                 {
-                    window.SetFramerateLimit(35);
+                    //window.SetFramerateLimit(35);
                 }
 
                 mouseGrabbed = false;
@@ -248,19 +252,15 @@ namespace ManagedDoom
             }
         }
 
-        public void Run()
+        protected override void Update(GameTime gameTime)
         {
-            while (window.IsOpen)
+            DoEvents();
+            if (UpdateDoom() == UpdateResult.Completed)
             {
-                window.DispatchEvents();
-                DoEvents();
-                if (Update() == UpdateResult.Completed)
-                {
-                    break;
-                }
+                //break;
             }
 
-            config.Save(ConfigUtilities.GetConfigPath());
+            base.Update(gameTime);
         }
 
         public void NewGame(GameSkill skill, int episode, int map)
@@ -439,7 +439,7 @@ namespace ManagedDoom
             }
         }
 
-        private UpdateResult Update()
+        private UpdateResult UpdateDoom()
         {
             if (!wiping)
             {
@@ -534,6 +534,7 @@ namespace ManagedDoom
             return UpdateResult.None;
         }
 
+        /*
         private void KeyPressed(object sender, KeyEventArgs e)
         {
             if (events.Count < 64)
@@ -549,11 +550,12 @@ namespace ManagedDoom
                 events.Add(new DoomEvent(EventType.KeyUp, (DoomKey)e.Code));
             }
         }
+        */
 
         private void CheckMouseState()
         {
             bool mouseShouldBeGrabbed;
-            if (!window.HasFocus())
+            if (!IsActive)
             {
                 mouseShouldBeGrabbed = false;
             }
@@ -641,7 +643,7 @@ namespace ManagedDoom
             quitMessage = message;
         }
 
-        public void Dispose()
+        protected override void UnloadContent()
         {
             if (userInput != null)
             {
@@ -672,12 +674,13 @@ namespace ManagedDoom
                 resource.Dispose();
                 resource = null;
             }
+        }
 
-            if (window != null)
-            {
-                window.Dispose();
-                window = null;
-            }
+        protected override void OnExiting(object sender, EventArgs args)
+        {
+            config.Save(ConfigUtilities.GetConfigPath());
+
+            base.OnExiting(sender, args);
         }
 
         public ApplicationState State => currentState;

@@ -17,9 +17,6 @@
 
 using System;
 using System.Runtime.ExceptionServices;
-using SFML.Graphics;
-using SFML.System;
-using SFML.Window;
 
 namespace ManagedDoom.UserInput
 {
@@ -27,7 +24,7 @@ namespace ManagedDoom.UserInput
     {
         private Config config;
 
-        private RenderWindow window;
+        private DoomApplication doomApp;
 
         private bool useMouse;
 
@@ -41,7 +38,7 @@ namespace ManagedDoom.UserInput
         private int mouseY;
         private bool cursorCentered;
 
-        public SfmlUserInput(Config config, RenderWindow window, bool useMouse)
+        public SfmlUserInput(Config config, DoomApplication doomApp, bool useMouse)
         {
             try
             {
@@ -51,7 +48,7 @@ namespace ManagedDoom.UserInput
 
                 config.mouse_sensitivity = Math.Max(config.mouse_sensitivity, 0);
 
-                this.window = window;
+                this.doomApp = doomApp;
 
                 this.useMouse = useMouse;
 
@@ -59,8 +56,8 @@ namespace ManagedDoom.UserInput
                 turnHeld = 0;
 
                 mouseGrabbed = false;
-                windowCenterX = (int)window.Size.X / 2;
-                windowCenterY = (int)window.Size.Y / 2;
+                windowCenterX = doomApp.GraphicsDevice.PresentationParameters.BackBufferWidth / 2;
+                windowCenterY = doomApp.GraphicsDevice.PresentationParameters.BackBufferHeight / 2;
                 mouseX = 0;
                 mouseY = 0;
                 cursorCentered = false;
@@ -77,6 +74,7 @@ namespace ManagedDoom.UserInput
 
         public void BuildTicCmd(TicCmd cmd)
         {
+            /*
             var keyForward = IsPressed(config.key_forward);
             var keyBackward = IsPressed(config.key_backward);
             var keyStrafeLeft = IsPressed(config.key_strafeleft);
@@ -222,10 +220,12 @@ namespace ManagedDoom.UserInput
 
             cmd.ForwardMove += (sbyte)forward;
             cmd.SideMove += (sbyte)side;
+            */
         }
 
         private bool IsPressed(KeyBinding keyBinding)
         {
+            /*
             foreach (var key in keyBinding.Keys)
             {
                 if (Keyboard.IsKeyPressed((Keyboard.Key)key))
@@ -244,6 +244,7 @@ namespace ManagedDoom.UserInput
                     }
                 }
             }
+            */
 
             return false;
         }
@@ -257,6 +258,7 @@ namespace ManagedDoom.UserInput
 
         public void GrabMouse()
         {
+            /*
             if (useMouse && !mouseGrabbed)
             {
                 window.SetMouseCursorGrabbed(true);
@@ -266,10 +268,12 @@ namespace ManagedDoom.UserInput
                 mouseY = 0;
                 cursorCentered = false;
             }
+            */
         }
 
         public void ReleaseMouse()
         {
+            /*
             if (useMouse && mouseGrabbed)
             {
                 var posX = (int)(0.9 * window.Size.X);
@@ -279,10 +283,12 @@ namespace ManagedDoom.UserInput
                 window.SetMouseCursorVisible(true);
                 mouseGrabbed = false;
             }
+            */
         }
 
         private void UpdateMouse()
         {
+            /*
             if (mouseGrabbed)
             {
                 if (cursorCentered)
@@ -315,6 +321,7 @@ namespace ManagedDoom.UserInput
                 mouseX = 0;
                 mouseY = 0;
             }
+            */
         }
 
         public void Dispose()
