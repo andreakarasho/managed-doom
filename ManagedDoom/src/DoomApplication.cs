@@ -74,8 +74,18 @@ namespace ManagedDoom
 
         protected override void Initialize()
         {
-            config.video_screenwidth = Math.Clamp(config.video_screenwidth, 320, 3200);
-            config.video_screenheight = Math.Clamp(config.video_screenheight, 200, 2000);
+            if (config.video_screenwidth == 0)
+            {
+                var display = graphics.GraphicsDevice.DisplayMode;
+                var size = ConfigUtilities.GetDefaultWindowSize(display.Width, display.Height);
+                config.video_screenwidth = size.width;
+                config.video_screenheight = size.height;
+            }
+            else
+            {
+                config.video_screenwidth = Math.Clamp(config.video_screenwidth, 320, 3200);
+                config.video_screenheight = Math.Clamp(config.video_screenheight, 200, 2000);
+            }
 
             graphics.PreferredBackBufferWidth = config.video_screenwidth;
             graphics.PreferredBackBufferHeight = config.video_screenheight;

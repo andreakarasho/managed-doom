@@ -19,6 +19,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using ManagedDoom.Audio;
 
 namespace ManagedDoom
@@ -46,11 +47,8 @@ namespace ManagedDoom
             return Path.Combine(GetExeDirectory(), "managed-doom.cfg");
         }
 
-        /*
-        public static VideoMode GetDefaultVideoMode()
+        public static (int width, int height) GetDefaultWindowSize(int displayWidth, int displayHeight)
         {
-            var desktop = VideoMode.DesktopMode;
-
             var baseWidth = 640;
             var baseHeight = 400;
 
@@ -62,8 +60,7 @@ namespace ManagedDoom
                 var nextWidth = currentWidth + baseWidth;
                 var nextHeight = currentHeight + baseHeight;
 
-                if (nextWidth >= 0.9 * desktop.Width ||
-                    nextHeight >= 0.9 * desktop.Height)
+                if (nextWidth >= 0.9 * displayWidth || nextHeight >= 0.9 * displayHeight)
                 {
                     break;
                 }
@@ -72,9 +69,8 @@ namespace ManagedDoom
                 currentHeight = nextHeight;
             }
 
-            return new VideoMode((uint)currentWidth, (uint)currentHeight);
+            return (currentWidth, currentHeight);
         }
-        */
 
         public static string GetDefaultIwadPath()
         {
